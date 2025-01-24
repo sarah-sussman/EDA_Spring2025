@@ -35,19 +35,24 @@ median(fiftyfivebyfive_sequence)
 
 3.  Ask R to determine whether the mean is greater than the median.
 ```{r}
-fiftyfivebyfive_mean <- mean(fiftyfivebyfive_sequence) # Create object representing the mean of the sequence
-fiftyfivebyfive_median <- median(fiftyfivebyfive_sequence) # Create an object representing the median of the sequence
-fiftyfivebyfive_mean > fiftyfivebyfive_median # Determine if mean object is greater than the median object
+# Create object representing the mean of the sequence
+fiftyfivebyfive_mean <- mean(fiftyfivebyfive_sequence) 
+# Create an object representing the median of the sequence
+fiftyfivebyfive_median <- median(fiftyfivebyfive_sequence) 
+# Determine if mean object is greater than the median object
+fiftyfivebyfive_mean > fiftyfivebyfive_median 
 ```
 
 4.  Insert comments in your code to describe what you are doing.
 
 ```{r basics 1}
-#1. Generate a sequence of numbers from 1-55, increasing by fives called "fiftyfivebyfive_sequence".
+#1. Generate a sequence of numbers from 1-55, increasing by fives called 
+#"fiftyfivebyfive_sequence".
 
 #2. Compute the mean and median of "fiftyfivebyfive_sequence".
 
-#3. Is the mean of "fiftyfivebyfive_sequence" greater than the median of "fiftyfivebyfive_sequence"?
+#3. Is the mean of "fiftyfivebyfive_sequence" greater than the median of 
+#"fiftyfivebyfive_sequence"?
 
 ```
 
