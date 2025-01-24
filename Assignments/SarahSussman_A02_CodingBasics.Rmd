@@ -54,29 +54,71 @@ fiftyfivebyfive_mean > fiftyfivebyfive_median # Determine if mean object is grea
 ## Basics, Part 2
 
 5.  Create three vectors, each with four components, consisting of (a) student names, (b) test scores, and (c) whether they are on scholarship or not (TRUE or FALSE).
+```{r}
+studentnames <- c("Sarah", "Jake", "Megan", "Natalie")
+testscores <- c(88, 94, 97, 85)
+scholarship <- c(TRUE, FALSE, TRUE, FALSE)
+```
 
 6.  Label each vector with a comment on what type of vector it is.
+```{r}
+studentnames # Character
+testscores # Numeric
+scholarship # Logic
+```
 
 7.  Combine each of the vectors into a data frame. Assign the data frame an informative name.
+```{r}
+student_info_df <- data.frame("Student name" = studentnames,
+                              "Test score" = testscores,
+                              "Scholarship" = scholarship)
+student_info_df
+```
 
 8.  Label the columns of your data frame with informative titles.
 
 ```{r basics 2}
-
+# I did this in step 7.
 
 ```
 
 9.  QUESTION: How is this data frame different from a matrix?
 
 > Answer:
+A matrix would have labeled rows and columns, the data frame created above just has columns. 
 
 10. Create a function with one input. In this function, use `if`...`else` to evaluate the value of the input: if it is greater than 50, print the word "Pass"; otherwise print the word "Fail". 
+```{r}
+passfail <- function(x) {
+  if(x > 50) {
+    print("Pass")
+  }
+  else {
+    print("Fail")
+  }
+}
+
+```
 
 11. Create a second function that does the exact same thing as the previous one but uses `ifelse()` instead if `if`...`else `. 
+```{r}
+passfail_ifelse <- function(x) {
+  ifelse(x>50, "Pass", "Fail")
+}
+print(passfail_ifelse)
+```
 
 12. Run both functions using the value 52.5 as the input
+```{r}
+passfail(52.5)
+passfail_ifelse(52.5)
+```
 
 13. Run both functions using the **vector** of student test scores you created as the input. (Only one will work properly...)
+```{r}
+#passfail(testscores)
+passfail_ifelse(testscores)
+```
 
 ```{r basics 3}
 #10. Create a function using if...else
@@ -95,6 +137,6 @@ fiftyfivebyfive_mean > fiftyfivebyfive_median # Determine if mean object is grea
 14. QUESTION: Which option of `if`...`else` vs. `ifelse` worked? Why? (Hint: search the web for "R vectorization")
 
 > Answer:
-
+The 'ifelse' option worked and the 'if'...'else' statement did not. This is because the 'ifelse' statement is vectorized, meaning it can evaluate each condition in the vector. The 'if'...'else'... statement is not vectorized, so it can only evaluate one condition at a time.
 
 **NOTE** Before knitting, you'll need to comment out the call to the function in Q13 that does not work. (A document can't knit if the code it contains causes an error!)
