@@ -20,7 +20,7 @@ library(tidyverse); library(lubridate); library(here)
 here()
 
 #Import data
-pm25 <- read.csv(
+pm25 <- read.csv(here('Data', 'Raw', 'EPAair_PM25_NC2019_raw.csv'),
   #----ENTER THE FILENAME HERE, USING THE here() PACKAGE----
   stringsAsFactors = TRUE,
   colClasses = c("Site.ID"='factor')
