@@ -144,11 +144,15 @@ Prior to running this, reset your workspace (Session->Restart R) to ensure it ru
 
 ```{r Setup}
 # Load packages
-
+library(dplyr)
+library(ggplot2)
+library(here)
 # Confirm working directory
-
+getwd()
 # Load the USGS flow data into a data frame
-
+USGS.flow.data <- read.csv(
+  file = here("./Data/Raw/USGS_Site02085000_Flow_Raw.csv"),
+  stringsAsFactors = TRUE)   
 ```
 
 ---
@@ -166,7 +170,7 @@ Take a moment to read through the README file associated with the USGS dataset o
 Next, have a look at your dataset. Browse your data in RStudio's viewer. Have a look at the structure of your data. Consider renaming columns. 
 
 ```{r Exploring data}
-View(USGS.flow.data)
+#View(USGS.flow.data)
 # Alternate option: click on data frame in Environment tab
 
 class(USGS.flow.data)
@@ -198,7 +202,7 @@ summary(USGS.flow.data)  #could point to column only with $
 ```
 
 What happened to blank cells in the spreadsheet when they were imported into R?
-> Answer: 
+> Answer: They became N/A
 
 ### Identify and address issues: Missing Data
 
@@ -247,7 +251,9 @@ Alternatively, we can tell R to import it as a factor when we read the data in
 ```{r}
 USGS.flow.data2  <- read.csv(
   file = here("./Data/Raw/USGS_Site02085000_Flow_Raw.csv"),
-  stringsAsFactors = TRUE) 
+  stringsAsFactors = TRUE,
+  colClasses = c('site_no'='factor') # Overrides how R will import a column in a dataframe.
+)
 ```
 
 
@@ -314,7 +320,7 @@ We just edited our raw dataset into a processed form. We may want to return to t
 ```{r Saving data}
 write.csv(
   USGS.flow.data, 
-  file = here("/Data/Processed/USGS_Site02085000_Flow_Processed.csv"), 
+  file = here("./Data/Processed/USGS_Site02085000_Flow_Processed.csv"), 
   row.names=FALSE)
 
 ```

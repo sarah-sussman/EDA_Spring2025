@@ -3,6 +3,8 @@ title: "3: Data Exploration"
 author: "Environmental Data Analytics | John Fay & Luana Lima"
 date: "spring 2025"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## Lesson Objectives
@@ -16,7 +18,7 @@ output: pdf_document
 
 Why is data exploration our first step in analyzing a dataset? What information do we gain? How does data exploration aid in our decision-making for data analysis steps further down the pipeline?
 
->Answer: 
+>Answer: Exploring our dataset allows us to find issues that might cause issues later. Ex: When column data types don't accurately relfect what the data actually is: date/time being stored as a factor instead of as data/time or the site id number being stored as a numeric data type instead of as a factor or character.
 
 ---
 
@@ -25,22 +27,36 @@ Why is data exploration our first step in analyzing a dataset? What information 
 ```{r, Setup-Import-Explore, message = FALSE}
 ## -Set up-
 # 1. Load packages (tidyverse, here)
+library(tidyverse)
+library(here)
 
 # 2. Check the working directory
+getwd()
+here()
 
 # 3. Import datasets
+USGS.flow.data <- read.csv(
+  file = here('Data/Processed/USGS_Site02085000_Flow_Processed.csv'),
+  stringsAsFactors = TRUE,
+  colClasses = c('site_no' = 'factor')
+)
 
 ## -Initial Exploration-
+
 
 #View(USGS.flow.data)
 # Alternate option: click on data frame in Environment tab
 
 #View column names and the structure of the dataset
+colnames(USGS.flow.data)
+str(USGS.flow.data)
 
 # Check our date column: is it a date object?
+class(USGS.flow.data$datetime)
 
 # Change it to a date object and confirm
-
+USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%Y-%m-%d")
+class(USGS.flow.data$datetime)
 
 ```
 
@@ -64,24 +80,25 @@ ggplot(data = USGS.flow.data, aes(x = discharge.mean.approval)) +
 Visualize distributions of values for continuous numerical variables. What is happening in each line of code? Insert a comment above each line.
 
 ```{r, fig.height = 3, fig.width = 4}
-# 
+#  Create histogram of the discharge.mean. Histograms are for continuous data (numeric), bar plots are for non-numeric (factors).
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean))
 
-# 
+# Bins are now 10 units of(cfs) of discharge (x-axis)
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean), binwidth = 10)
 
-# 
+# Change bins to 20 units. aes refers to the data, 
+# which is why bins is outside of the aes. bin is a part of the geom
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean), bins = 20)
 
-# 
+# Bins are set to 10. Focus on values up to 500. Defines the extent of the x-axis.
 ggplot(USGS.flow.data, aes(x = discharge.mean)) +
   geom_histogram(binwidth = 10) + 
   scale_x_continuous(limits = c(0, 500))
   
-# 
+# Looking at mean gage height
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = gage.height.mean))
 
@@ -92,14 +109,14 @@ ggplot(USGS.flow.data) +
 An alternate to a histogram is a frequency polygon graph (distributions of values for continuous numerical variables). Instead of displaying bars,  counts of continuous variables are displayed as lines. This is advantageous if you want to display multiple variables or categories of variables at once.
 
 ```{r, fig.height = 3, fig.width = 4}
-#
+# Frequency polygon. mean height of the stream. Is drawing a line that would go over the top of a histogram. Can show more than one distribution/Compare multiple lines. The aes change with each geom.
 ggplot(USGS.flow.data) +
   geom_freqpoly(aes(x = gage.height.mean), bins = 50) +
-  geom_freqpoly(aes(x = gage.height.min), bins = 50, color = "darkgray") +
+  geom_freqpoly(aes(x = gage.height.min), bins = 50, color = "darkgrey") +
   geom_freqpoly(aes(x = gage.height.max), bins = 50,  lty = 2) +
   scale_x_continuous(limits = c(0, 10))
 
-#
+# In this one, the color is in the aes (last one it was not). It's saying we're going to apply some sort of attribute of our plot based on values in the data frame.
 ggplot(USGS.flow.data) +
   geom_freqpoly(aes(x = gage.height.mean, color = gage.height.mean.approval), bins = 50) +
   scale_x_continuous(limits = c(0, 10)) +
@@ -122,15 +139,21 @@ A box-and-whisker plot is yet another alternative to histograms (distributions o
 An alternate option is a violin plot, which displays density distributions, somewhat like a hybrid of the box-and-whiskers and the frequency polygon plot.
 
 ```{r, fig.height = 3, fig.width = 4}
-#
+# boxplot. big flat horizontal line is media=n. box is showing Interquartile range. Everything outside is falling outside of IQR (75th percentile, 25th percentile). The narrower the box the narrower the distribution.
 ggplot(USGS.flow.data) +
   geom_boxplot(aes(x = gage.height.mean.approval, y = gage.height.mean))
 
-#
+# When x-axis is continuous. Can be useful for looking at interactive properties of the dataset.
 ggplot(USGS.flow.data) +
-  geom_boxplot(aes(x = gage.height.mean, y = discharge.mean, group = cut_width(gage.height.mean, 1)))
+  geom_boxplot(
+    aes(
+      x = gage.height.mean, 
+      y = discharge.mean, 
+      group = cut_width(gage.height.mean, 1)
+      )
+    )
 
-#
+# the width is propotional to the number of values in there.
 ggplot(USGS.flow.data) +
   geom_violin(aes(x = gage.height.mean.approval, y = gage.height.mean), 
               draw_quantiles = c(0.25, 0.5, 0.75))
@@ -140,6 +163,7 @@ ggplot(USGS.flow.data) +
 Visualize relationships between continuous numerical variables.
 
 ```{r, fig.height = 3, fig.width = 4}
+# Every point is a row in the dataframe.
 ggplot(USGS.flow.data) +
   geom_point(aes(x = discharge.mean, y = gage.height.mean))
 
@@ -149,7 +173,12 @@ ggplot(USGS.flow.data) +
 
 Question: under what circumstances would it be beneficial to use each of these graph types (bar plot, histogram, frequency polygon, box-and whisker, violin, scatterplot)?
 
-> Answer: 
+> Answer: bar plot: non-continuous data (like approved/not approved). 
+histogram: Visualize distributions of values for continuous numerical variables.
+frequency polygon: Can show more than one distribution/Compare multiple lines, like mean/min/max height of discharge. 
+Boxplot: want to know Interquartile range ? 
+violin: displays density distributions, somewhat like a hybrid of the box-and-whiskers and the frequency polygon plot.
+scatterplot: continuous data and how two continuous data variables relate to each other.
 
 ## Ending discussion
 What did you learn about the USGS discharge dataset today? What separate insights did the different graph types offer?
