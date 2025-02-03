@@ -82,7 +82,7 @@ dim(Neonics) # 4623, 30
 ```{r exploring studied effects}
 # Determine the most common effects that are studied
 summary(Neonics$Effect)
-sort(Neonics$Effect, decreasing = TRUE)
+#sort(Neonics$Effect, decreasing = TRUE)
 ```
 
 > Answer: Population and Reproduction are the two most common effects that are studied. These are probably
