@@ -16,7 +16,7 @@ editor_options:
 
 ```{r setup workspace, message = FALSE}
 getwd()
-#library(plyr)
+library(plyr)
 library(tidyverse)
 library(lubridate)
 NTL.phys.data.PeterPaul <- read.csv("./Data/Processed/NTL-LTER_Lake_ChemistryPhysics_PeterPaul_Processed.csv")
@@ -51,10 +51,10 @@ class(NTL.nutrient.data.PeterPaul$sampledate)
 NTL.nutrient.data.PeterPaul$sampledate <- as.Date(NTL.nutrient.data.PeterPaul$sampledate, format = "%m/%d/%y")
 
 NTL.nutrient.data.PeterPaul <- 
-  NTL.nutrient.data.PeterPaul %>% #
-  mutate(month = month(sampledate)) %>% #
-  select(lakeid:daynum, month, sampledate:comments) %>% # 
-  drop_na(depth)
+  NTL.nutrient.data.PeterPaul %>% # beginning of pipe
+  mutate(month = month(sampledate)) %>% # mutate to create the month column
+  select(lakeid:daynum, month, sampledate:comments) %>% # select all the columns to reorder where the month date sits (after day number)
+  drop_na(depth) # dropping all the NA's
 
 # Save processed nutrient file
 write.csv(NTL.nutrient.data.PeterPaul, row.names = FALSE, 
@@ -99,7 +99,7 @@ write.csv(NTL.nutrient.data.PeterPaul.gathered, row.names = FALSE,
 # Spread nutrient data into separate columns
 #NTL.nutrient.data.PeterPaul.spread <- spread(NTL.nutrient.data.PeterPaul.gathered, nutrient, concentration)
 
-# Spread nutrient data into separate columns using pivot_wider
+# Spread nutrient data into separate columns using pivot_wider (going back to how it orginally was)
 NTL.nutrient.data.PeterPaul.spread2 <- pivot_wider(NTL.nutrient.data.PeterPaul.gathered, names_from = nutrient, values_from = concentration)
 
 # Split components of cells into multiple columns
@@ -152,6 +152,7 @@ However, there are 20 months in this dataset, so importing all these files indiv
 LitterFiles = list.files(path = "./Data/Raw/NIWO_Litter/", pattern="*.csv", full.names=TRUE)
 LitterFiles
 
+# Pipe, read each document in the file
 Litter <- LitterFiles %>%
   plyr::ldply(read.csv)
 ```
