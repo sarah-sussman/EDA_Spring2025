@@ -27,13 +27,12 @@ library(lubridate)
 library(here) #The here package allows for better control of relative paths
 
 #Ensure that "here" points to your project folder
+getwd()
 here()
 
 #Read in the data
-NTL.phys.data <- read.csv(
-  file=here("Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv"), 
-  stringsAsFactors = TRUE
-)
+#NTL.phys.data <- read.csv(file=here("Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv"),stringsAsFactors = TRUE)
+NTL.phys.data <- read.csv(("Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv"),stringsAsFactors = TRUE)
 
 #Show the datatype of the 'sampledate' column
 str(NTL.phys.data$sampledate)
@@ -43,6 +42,8 @@ glimpse(NTL.phys.data$sampledate)
 
 # Change sampledate values into date objects
 NTL.phys.data$sampledate <- mdy(NTL.phys.data$sampledate)
+
+NTL.phys.data$sampledate
 ```
 
 ---
@@ -80,12 +81,14 @@ NTL.phys.data.JunethruOctober <- filter(NTL.phys.data, daynum %in% c(152:304))
 # Exercise 1: 
 # filter NTL.phys.data for the year 1999
 # what code do you need to use, based on the class of the variable?
-
+Ex1 <- filter(NTL.phys.data, year4 == 1999)
 
 # Exercise 2: 
 # filter NTL.phys.data for Tuesday Lake from 1990 through 1999.
-
-
+Ex2 <- filter(
+  NTL.phys.data, 
+  (lakename == "Tuesday Lake") & (year4 %in% c(1990:1999))
+)
 ```
 Question: Why don't we filter using row numbers?
 
@@ -104,21 +107,29 @@ Let's say we want to take our raw dataset (NTL.phys.data), *then* filter the dat
 #Example using pipes to wrangle data: 
 #Add pipes in the correct place below
 NTL.phys.data.processed <- 
-  NTL.phys.data
-  filter(lakename == "Paul Lake" | lakename == "Peter Lake") 
-  select(lakename, sampledate:temperature_C) 
+  NTL.phys.data %>%
+  filter(lakename == "Paul Lake" | lakename == "Peter Lake") %>%
+  select(lakename, sampledate:temperature_C) %>%
   mutate(temperature_F = (temperature_C*9/5) + 32)
 
 #Exercise 3: Using a pipe filter NTL.phys.data for Tuesday Lake from 1990 
 # through 1999 only for July.
-
+Ex3 <- NTL.phys.data %>%
+filter(lakename == 'Tuesday Lake') %>%
+filter(year4 %in% c(1990:1999)) %>%
+filter(month(sampledate) == 7)
   
 
 #Exercise 4: Using the data from part 3, a pipe, and the summarize() function, 
 # find the mean surface water temperature. 
 # (hint: you will need to filter for depth==0.25). 
-
-  
+Ex4 <- Ex3 %>%
+filter(depth == 0) %>%
+drop_na(temperature_C) %>%
+summarize(
+mean_surface = mean(temperature_C)
+)
+Ex4  
 ```
 
 
@@ -132,11 +143,21 @@ For gather we will use `pivot_longer` and for spread we will use `pivot_wider`.
 #  on the deck of the sampling boat) into one column using pivot_longer. Name
 #  the new column holding the irradiance type as "Irradiance_Type", and name the
 #  new column holding the irradiance values as "Irradiance_Value".
-
+Ex5 <- NTL.phys.data %>%
+pivot_longer(
+cols = c(irradianceWater,irradianceDeck),
+names_to = "irradiance_type",
+values_to = "irradiance"
+)
 
 
 #Exercise 6: Spread temperatureC into more than one column based on the depth.
-
+Ex6 <- NTL.phys.data %>%
+pivot_wider(
+id_cols = sampledate,
+names_from = depth,
+values_from = temperature_C
+)
 
 
 ```
