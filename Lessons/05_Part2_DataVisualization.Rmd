@@ -203,7 +203,7 @@ print(Nutrientplot)
 ### Multiple plots on a page
 In situations where facets don't fill our needs to place multiple plots on a page, we can use the package `cowplot` to arrange plots. The `plot_grid` function is extremely flexible in its ability to arrange plots in specific configurations. A useful guide can be found here: https://cran.r-project.org/web/packages/cowplot/vignettes/introduction.html.
 
-A useful guide for aligning plots by axis can be found here: https://wilkelab.org/cowplot/articles/aligning_plots.html
+A useful guide for aligning plots by axis can be found here:
 
 ```{r, fig.height = 7, fig.width = 6}
 #install.packages("cowplot")
