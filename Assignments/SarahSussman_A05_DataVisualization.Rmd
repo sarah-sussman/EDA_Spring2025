@@ -184,4 +184,4 @@ NiwotRidge.litter %>%
 ```
 Question: Which of these plots (6 vs. 7) do you think is more effective, and why? 
 
-> Answer: I think that plot 7 is more effective than plot 6. When we are plotting the dry mass of the needle litter for each land class type on the same plot it looks disorganized and messy. When they are one three seperate plots, it is easier to look at the individual data from each land claass nad it is easier to make comparisons between them.
+> Answer: I think that plot 7 is more effective than plot 6. When we are plotting the dry mass of the needle litter for each land class type on the same plot it looks disorganized and messy. When they are one three seperate plots, it is easier to look at the individual data from each land claass and it is easier to make comparisons between them.
