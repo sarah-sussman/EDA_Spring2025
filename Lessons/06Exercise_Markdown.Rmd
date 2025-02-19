@@ -5,23 +5,28 @@ output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
   chunk_output_type: console
+toc: true
 ---
+\listoftables
 
 ## Set up the coding environment
 
-```{r setup}
+```{r setup, warning=FALSE, echo=FALSE, include = FALSE }
+
 #Load packages
 library(tidyverse);library(here);library(lubridate)
 
 #Load data
 nutrient_data_raw <- read.csv(
-  here('Data/Processed_KEY','NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv'),
+  ('Data/Processed_KEY/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv'),
   stringsAsFactors = TRUE)
 
 #Fix dates
 nutrient_data_raw$sampledate = ymd(nutrient_data_raw$sampledate)
 
 ```
+
+The raw dataset has 'r nrow(nutrient_data_raw)' rows and 'r ncol(nutrient_data_raw)' columns.
 
 ## Wrangle the data
 
@@ -43,4 +48,12 @@ nutrient_data_tn <- nutrient_data %>%
   )
 ```
 
+\newpage
+
 ## Report the summary
+```{r create tables, echo=FALSE}
+knitr::kable(nutrient_data_tn, caption = "Summary of Total Nitrogen")
+
+knitr::kable(nutrient_data_tn, caption = "Another Summary of Total Nitrogen")
+```
+
