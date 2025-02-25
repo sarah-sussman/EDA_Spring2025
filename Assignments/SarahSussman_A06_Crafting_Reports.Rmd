@@ -115,28 +115,31 @@ knitr::kable(summary_Ozone,
 
 Below this paragraph, but above the horizonal line (`---`), create two separate code chunks that create boxplots of the distribution of Ozone levels by month using, one for only records collected in 2018 and one for records in 2019. Customize the chunk options such that the final figures are displayed but not the code used to generate the figures. In addition, align the plots on the left side of the page and set the figure heights so both plots fit on the same page with minimal space remaining. Lastly, add a `fig.cap` chunk option to add a caption (title) to your plot that will display underneath the figure.
 
-```{r fig.height = 4, fig.width = 4, fig.cap= "2018 Ozone Levels", fig.align='left',echo=FALSE, message=FALSE, warning=FALSE}
-# Filter for 2018 data
+```{r fig.height = 4, fig.width = 6, fig.cap= "2018 Monthly Ozone Levels", fig.align='left',echo=FALSE, message=FALSE, warning=FALSE}
+# Filter for 2018 data and group by month
 Ozone_2018 <- epa_data %>%
   filter(Year==2018)
+
 # Create a boxplot
-Figure_1 <- ggplot(Ozone_2018, aes(x=Month, y=Ozone)) +
+Figure_1 <- ggplot(Ozone_2018, aes(x=factor(Month), y=Ozone)) +
   geom_boxplot() +
-  labs(x="Month", y="Ozone levels (ppb)") +
-  scale_x_continuous(breaks = 1:12, labels = month.abb, limits = c(1,12))
+  labs(x="Month", y="Concentration (µg/m³)", title = "Monthly Ozone Concentrations (2018)") +
+  scale_x_discrete(breaks = 1:12, labels = month.abb)
 # Print figure
 Figure_1
+
 ```
 
-```{r fig.height = 4, fig.width = 4, fig.cap="2019 Ozone Levels", fig.align='left', echo=FALSE, message=FALSE, warning=FALSE}
+```{r fig.height = 4, fig.width = 6, fig.cap="2019 Monthly Ozone Levels", fig.align='left', echo=FALSE, message=FALSE, warning=FALSE}
 # Filter for 2019 data
 Ozone_2019 <- epa_data %>%
   filter(Year==2019)
+
 # Create a boxplot
-Figure_2 <- ggplot(Ozone_2019, aes(x=Month, y=Ozone)) +
+Figure_2 <- ggplot(Ozone_2019, aes(x=factor(Month), y=Ozone)) +
   geom_boxplot() +
-  labs(x="Month", y="Ozone levels (ppb)") +
-  scale_x_continuous(breaks = 1:12, labels = month.abb, limits = c(1,12))
+  labs(x="Month", y="Concentration (µg/m³)", title = "Monthly Ozone Concentrations (2019)") +
+  scale_x_discrete(breaks = 1:12, labels = month.abb)
 # Print figure
 Figure_2
 ```
