@@ -48,7 +48,35 @@ Create three plots, each with appropriately formatted axes and legends. Choose a
 
 ```{r}
 #Exercise 1:
+#geom_density
+O3_density <- 
+  ggplot(EPAair, aes(x=Ozone, 
+                     fill=as.factor(Year))) +
+  geom_density(alpha=0.5) +
+  scale_fill_manual(values = c("darkgreen", "yellow")) +
+  labs(x="Ozone AQI value",
+       y = "Density",
+       fill = "")
 
+print(O3_density)
+
+#geom_boxplot
+O3_boxplot <-
+  ggplot(EPAair, aes(x=as.factor(Year),
+                     y=Ozone)) +
+  geom_boxplot() +
+  stat_summary(geom = "text",
+               fun=max,
+               vjust=-1,
+               size=4,
+               label=c("b","a"))
+labs(x="",
+     y="Ozone AQI value") +
+  ylim(0,150)
+
+print(O3_boxplot)
+
+#geom_violin
 
 ```
 
@@ -61,11 +89,20 @@ For the NTL-LTER dataset, can we predict PM2.5 from Ozone?
 ```{r}
 
 #Exercise 2: Run a linear regression PM2.5 by Ozone. Find the p-value and R-squared value. 
+# ozone in x axis, pm2.5 in y-aaxis. 
 
+PM2.5byOzone <- lm(data = EPAair,
+                 PM2.5 ~ Ozone)
+summary(PM2.5byOzone)
 
+# p-value = < 0.05
+# R-squared = 0.1316, yes there is aa relaaationship ebvtween ozone anad pm2.5 but ozone is only showing 13% of vaariability of pm2.5. if want better model for pm2.5 need to add more variables
 
 #Exercise 3: Build a scatterplot. Add a line and standard error for the linear regression. Add the regression equation to the plot
-
+PM2.5byOzone <-
+  ggplot(EPAair, aes(x=Ozone, y=PM2.5)) +
+  geom_point() +
+  geom_smooth(method = "lm", color=blue)
 
 
 ```
@@ -78,17 +115,30 @@ What other variables can we add to improve model?
 ```{r}
 
 #Exercise 4: Build correlation plots and identify more possible explanatory variables to add to the regression.
+library(corrplot)
+library(dplyr)
 
+EPAair.subset <- EPAair %>%
+  select(mean_Lat:Ozone) %>%
+  na.omit()
 
+EPAairCorr <- cor(EPAair.subset)
+corrplot.mixed(EPAairCorr, upper = "ellipse")
 
 
 #Exercise 5: Choose a model by AIC in a Stepwise Algorithm. Do the results from AIC match the variables you selected on Exercise 4?
+PM2.5byAll <- lm(data = EPAair.subset,
+                 PM2.5 ~ Ozone + Year + Month +
+                   mean_Lng)
+step(PM2.5byAll)
 
-
-
+#AIC is saying to keep everything there. All are good candiates.
 
 #Exercise 6: Run another regression using the variables selected on Exercise 6. Compare r-squared value with the one from Exercise 2. 
+PM2.5by
 
+# Aall regression cooefficants are <0.05. Meaning there is significant difference.
+# Model 19% of PM2.5. still want R^2 to bump up a little bit more.
 ```
 
 
