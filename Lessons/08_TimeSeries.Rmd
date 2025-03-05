@@ -218,7 +218,7 @@ Note that wind speed has a seasonal cycle. We might be interested in knowing how
 
 ```{r}
 
-# Generate time series (trend test needs ts, not data.frame)
+# Generate time series (trend test needs ts, not data.frame) # a second way to do this
 f_month <- month(first(wind_data_clean$DATE))
 f_year <- year(first(wind_data_clean$DATE))
 wind_data_ts <- ts(wind_data_clean$AWND.clean,
@@ -255,7 +255,7 @@ print(wind_data_plot)
 
 What would we conclude based on these findings? 
 
-> Answer:
+> Answer: The negative slope indicates that there is a decreased trend in the average wind speed over time. We saw this with the decomposition and were able to conclude this with the season mann-kendall test.
 
 
 ## Forecasting with Autoregressive and Moving Average Models (ARMA)
