@@ -57,7 +57,7 @@ Temp_BR <- read.csv(here("Data/Raw/tas_1901_2016_BRA.csv"), stringsAsFactors = T
 
 Rainfall_BR_processed <-
   Rainfall_BR %>% 
-  rename( Rainfall = Rainfall....MM.) %>% 
+  rename( Rainfall = `Rainfall....MM.`) %>% 
   separate(Statistics,c("Null","Month","Null2")," ") %>% 
   mutate( Date = my(paste0(Month,"-",Year))) %>% 
   select(Date,Rainfall)
@@ -83,17 +83,29 @@ BR_complete <- inner_join(Rainfall_BR_processed,Temp_BR_processed)
 ```{r}
 
 #Exercise 5: Check if there is any missing data for both temperature and rainfall series.
-
+summary(BR_complete$Rainfall)
+summary(BR_complete$Temperature_C)
 
 
 
 #Exercise 6: Plot both series over time on separate plots. Add a trend line using geom_smooth(). Can you say something about the trend just by visualizing the data?
 
+ggplot(BR_complete, aes(x=Date,
+                        y=Rainfall)) +
+  geom_line() +
+  geom_smooth(method = "lm")
 
+# Blue line is looking for trends in data. can make assumptions based on slope of blue line. 
+# Trends are fairly consistent. Slight increase but hard to see. good example of where it would be good to conduct a test.
+# Variability is seasonal - dips and peaks that are equally spaced and at the same time every year.
 
+ggplot(BR_complete, aes(x=Date,
+                         y=Temperature_C)) +
+  geom_line() +
+  geom_smooth(method="lm")
 
-
-
+# more clear positive slope - temperature is increasing over time
+# there is stil seasonality.
 ```
 
 ## Creating time series objects
@@ -101,8 +113,10 @@ BR_complete <- inner_join(Rainfall_BR_processed,Temp_BR_processed)
 ```{r}
 #Exercise 7: Create a time series objects for each series using ts(). Make sure you specify the starting point and frequency.
 
+Rainfall.ts <- ts(BR_complete$Rainfall, start = c(1901,1), # c(year, month, day (only day if not starting on day 1))
+                  frequency = 12) #monthly data, so frequency is 12
 
-
+Temperature_C.ts <- ts(BR_complete$Temperature_C, start = c(1901,1), frequency = 12)
 ```
 
 
@@ -123,21 +137,43 @@ The `stl` function decomposes the time series object into its component parts. W
 # Exercise 8: Use the stl() function to decompose both series. 
 # Visualize the decomposed series using plot(). What components can you identify?
 
+Rainfall_Decomposed <- stl(Rainfall.ts, s.window = "periodic")
 
+Temperature_C_Decomposed <- stl(Temperature_C.ts, s.window = "periodic")
 
+plot(Rainfall_Decomposed)
+plot(Temperature_C_Decomposed)
 
-
+# order of plots: original data, seasonality, trend, and random (doesn't fall into any other component)
+# smaller bars on plot mean that it does not play a big role in data variability
+# trends suggest that average temperarture increased over last 40 years.
 
 # Exercise 9: Use the times series object generated with the stl() to extract the 
 # components of each series and turn them into data frames.
 
+Rainfall_Decomposed_Components <- 
+  as.data.frame(Rainfall_Decomposed$time.series) %>%
+                  mutate(Observed = BR_complete$Rainfall) %>%
+                  mutate(Date=BR_complete$Date)
+                                                  
 
+Temperature_C_Decomposed_Components <- as.data.frame(Temperature_C_Decomposed$time.series) %>%
+  mutate(Observed = BR_complete$Temperature_C) %>%
+  mutate(Date=BR_complete$Date)
 
 
 
 
 # Exercise 10: Visualize how the trend maps onto the data for both series
+ggplot(Rainfall_Decomposed_Components) +
+  geom_line(aes(x=Date, y=Observed)) +
+  geom_line(aes(x=Date, y=trend), color = "red") +
+  ylab("Rainfall")
 
+ggplot(Temperature_C_Decomposed_Components) +
+  geom_line(aes(x=Date, y=Observed)) +
+  geom_line(aes(x=Date, y=trend), color = "red") +
+  ylab("Temperature (C)")
 
 
 
@@ -160,22 +196,53 @@ Monotonic trends are a gradual shift over time that is consistent in direction. 
 
 # Exercise 11: Apply one of the trend detection test to the original data set. Remember that the data has seasonal component, which test can be applied in this case?
 
+Rain_trend <- trend::smk.test(Rainfall.ts)
+Rain_trend
+summary(Rain_trend)
 
+# Season 4 has p values < 0.05, ...
 
-
-
-
-
+Temp_trend <- trend::smk.test(Temperature_C.ts)
+Temp_trend
+summary(Temp_trend)
+ # each season of the year has singfiicant increase in temperature. b/c p value is <0.05.
 
 
 # Exercise 12: Now remove the seasonality and apply another test. Compare the results with what you obtained on Exercise 9.
 
+#removing seasonality for temperature
+BR_Temp_Nonseas <- Temperature_C.ts - Temperature_C_Decomposed$time.series[,1]
+
+Temperature_C_Decomposed_Components <- mutate(Temperature_C_Decomposed_Components,
+                             Nonseasonal = BR_Temp_Nonseas)
 
 
+# plotting resulting series
+ggplot(Temperature_C_Decomposed_Components) +
+  geom_line(aes(y=Observed, x=Date), size=0.25) +
+  geom_line(aes(y=Nonseasonal, x=Date), color = "#c13d75ff") +
+  ylab("Temperature")
 
 
+Temp_Nonseas_trend <- trend::mk.test(BR_Temp_Nonseas)
+# Inspect results
+Temp_Nonseas_trend
 
+# removing seasonality from rainfall
+BR_Rain_Nonseas <- Rainfall.ts - Rainfall_Decomposed_Components#$time.series[,1]
 
+# BR_Rain_Components <- mutate(BR_Rain_Components,
+                                #Nonseasonal = BR_Rain_Nonseas)
+
+# plotting resulting series
+# ggplot(BR_Rain_Components) +
+# geom_line(aes(y=Observed, X=Date), size = 0.25) +
+# geom_line(aes(y=Nonseasonal, X=Date), color = "#c13d75ff") +
+# ylab("Rainfall)
+
+# Rain_Nonseas_trend <- trend::mk.test(BR_Rain_Nonseas)
+# Inspect results
+#Rain_Nonseas_trend
 
 
 
