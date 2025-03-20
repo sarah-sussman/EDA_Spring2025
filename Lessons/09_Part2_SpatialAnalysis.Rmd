@@ -74,11 +74,11 @@ epa_pm25_sites_sf <- read_csv(here('Data/Raw/EPAair_PM25_NC2018_raw.csv')) %>%
 class(epa_pm25_sites_sf)
 
 #What is its CRS again?
-st_crs(epa_pm25_sites_sf)
+st_crs(epa_pm25_sites_sf) #$epsg
 
 #Plot the data
 ggplot(data=epa_pm25_sites_sf) +
-  geom_sf()
+  geom_sf(aes(color = meanPM))
 ```
 
 ## 2.2 Reading shapefiles into R with `sf`
@@ -116,16 +116,17 @@ mapView(counties_sf)
 
 ```{r read HUCs shapefile}
 #Read the shapefile into an sf dataframe named "huc8_sf"
-huc8_sf <- 
+huc8_sf <- st_read(here('Data/Spatial/NCHUC8.shp'))
 
 #Reveal the column names
-
+colnames(huc8_sf)
 
 #Check the CRS
-
+st_crs(huc8_sf)
 
 #View the data as a map, colored by the acreage in each
-
+ggplot(data=huc8_sf) +
+  geom_sf(aes(fill = ACRES))
 
 ```
 
@@ -136,10 +137,14 @@ huc8_sf <-
 
 ```{r Select the Upper Neuse HUC 8}
 #Read the shapefile into an sf dataframe
-
+huc8_sf_neuse <- huc8_sf %>%
+  filter(SUBBASIN == "Upper Neuse")
+ 
 
 #Create a map
-
+ggplot(data = huc8_sf_neuse) +
+   geom_sf(data = huc8_sf, fill = "gray") +
+  geom_sf(fill = "yellow", color = "blue")
 
 ```
 
@@ -217,13 +222,22 @@ ggplot() +
 
 ```{r}
 #Import data, setting HUC_12 to be factors, and computing a HUC_8 column
-
+wind_raw <- read.csv(
+  'https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Energy.csv',
+  colClasses = c('HUC_12' = 'factor')
+  ) %>%
+  mutate(huc_8 = substr(HUC_12, 0, 8)) %>%
+  group_by(huc_8) %>%
+  summarise(AvgWindEnergyHuc8 = sum(AvgWindEnergy))
   
 #Join to HUC_8 features
-
+huc8_wind_join <- merge(x = huc8_sf,
+                        y = wind_raw,
+                        by.x = "HUC_8",
+                        by.y = "huc_8")
 
 #View the outputs
-
+huc8_wind_join
 
 ```
 
@@ -247,14 +261,18 @@ mapview(state_sf)
 
 ```{r Aggregate the HUC data on an attribute, saving as huc2_sf}
 #List the unique values in the DWQ_Basin field
-
+unique(huc8_sf$DWQ_Basin)
 
 #Summarize on DWQ Basin value
-huc2_sf <- 
+huc2_sf <- huc8_sf %>%
+  group_by(DWQ_Basin) %>%
+  summarise(
+    ACRES = sum(ACRES)
+  )
   
 
 #Map the data
-
+mapview(huc2_sf, zcol = 'ACRES')
 
 ```
 
@@ -309,7 +327,9 @@ myMap
 
 #Select intersecting counties using the `filter()` command
 neuse_intersect <- counties_sf_utm %>%  
-  st_filter(neuse_sf, .predicate = st_intersects)
+  st_filter(neuse_sf, .predicate = st_intersects) # keeps all the counties that touch the watershed
+
+# use predicate = st_disjoint for all the counties that do not intersect the neuse watershed
 
 #View the result
 myMap + mapview(neuse_intersect, alpha.regions = 0, color='red')
@@ -336,12 +356,22 @@ triCo <- counties_sf_utm %>%
   filter(NAME %in% c("Durham","Wake", "Orange", "Chatham")) 
 
   
-#Grab the intersecting HUC_8s
+mapView(triCo)
 
+#Grab the intersecting HUC_8s
+triCo_intersect <- huc8_sf_utm %>%
+  st_filter(triCo, .predicate = st_intersects)
 
 
 #Intersect the HUC_8s
+triCo_huc8_sf <- triCo %>% st_intersection(huc8_sf_utm)
 
+# plot in gg plot
+ggplot(triCo_huc8_sf) +
+  geom_sf(fill = "purple", alpha = 0.5)
+
+# plot in mapview
+mapview(triCo_huc8_sf)
 
 ```
 
