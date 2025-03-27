@@ -107,7 +107,7 @@ In the code chunk below, see if you can extract the Facility Name and Facility T
 
 ```{r scraping.exercise.1}
 the_facility_name <- webpage %>% 
-  html_nodes() %>% 
+  html_nodes("tr:nth-child(2) th+ .left:nth-child(2)") %>% 
   html_text()
 the_facility_name
 
@@ -249,6 +249,7 @@ scrape.it <- function(the_year, the_facility){
   
   #Pause for a moment - scraping etiquette
   #Sys.sleep(1) #uncomment this if you are doing bulk scraping!
+  ## Slows down, important for iterations because could result in a "denial service attack" where it thinks you are attacking the website.
   
   #Return the dataframe
   return(df_withdrawals)
@@ -283,11 +284,11 @@ the_df <- bind_rows(the_dfs)
 #Plot, because it's fun and rewarding
 ggplot(the_df,aes(x=Date,y=Avg_Withdrawals_mgd)) + 
   geom_line() + 
-  geom_smooth(method="loess",se=FALSE) +
-  labs(title = paste("2020 Water usage data for",the_registrant),
-       subtitle = the_facility_name,
-       y="Withdrawal (mgd)",
-       x="Date")
+  geom_smooth(method="loess",se=FALSE)
+  #labs(title = paste("2020 Water usage data for",the_registrant),
+       #subtitle = the_facility_name,
+      #y="Withdrawal (mgd)",
+       #x="Date")
 ```
 
 # Part 3. Web Crawling
